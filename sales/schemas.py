@@ -1,4 +1,5 @@
 # schemas.py
+from typing import Optional
 from pydantic import BaseModel
 from datetime import date
 
@@ -7,10 +8,10 @@ class SaleBase(BaseModel):
     date: date
     weekly_sales: float
     holiday_flag: bool
-    temperature: float
-    fuel_price: float
-    cpi: float
-    unemployment: float
+    temperature: Optional[float] = None
+    fuel_price: Optional[float] = None
+    cpi: Optional[float] = None
+    unemployment: Optional[float] = None
 
 class SaleCreate(SaleBase):
     pass
