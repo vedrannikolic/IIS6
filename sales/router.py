@@ -2,9 +2,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
+from sales.models import WalmartSales
 from sales.schemas import SaleCreate, SaleSchema, SaleUpdate
 from sales.services import create_sale, update_sale, get_sales
 from core.database import get_db
+from datetime import datetime, date
 
 router = APIRouter(
     prefix="/sales",
@@ -13,8 +15,14 @@ router = APIRouter(
 )
 
 @router.post('', response_model=SaleSchema)
-def create_sale_route(sale: SaleCreate, db: Session = Depends(get_db)):
-    return create_sale(db=db, sale=sale)
+def create_sale(sale: SaleCreate, db: Session = Depends(get_db)):
+    if not sale.date:
+        sale.date = datetime.now()
+    db_sale = WalmartSales(**sale.model_dump(exclude_unset=True))
+    db.add(db_sale)
+    db.commit()
+    db.refresh(db_sale)
+    return db_sale
 
 @router.patch('/{sale_id}', response_model=SaleSchema)
 def update_sale_route(sale_id: int, sale: SaleUpdate, db: Session = Depends(get_db)):

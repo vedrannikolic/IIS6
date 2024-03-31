@@ -4,14 +4,14 @@ from core.database import Base  # Adjust the import path according to your proje
 class WalmartSales(Base):
     __tablename__ = "walmart_sales"
     id = Column(Integer, primary_key=True, index=True)
-    Store = Column(Integer, index=True)
-    Date = Column(Date)
-    Weekly_sales = Column(Float)
-    Holiday_flag = Column(Boolean)
-    Temperature = Column(Float)
-    Fuel_price = Column(Float)
-    Cpi = Column(Float)
-    Unemployment = Column(Float)
+    store = Column(Integer, index=True)
+    date = Column(Date)
+    weekly_sales = Column(Float)
+    holiday_flag = Column(Boolean)
+    temperature = Column(Float)
+    fuel_price = Column(Float)
+    cpi = Column(Float)
+    unemployment = Column(Float)
 
     def __repr__(self):
         # Customize this to display the information you find most useful

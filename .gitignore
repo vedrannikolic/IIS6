@@ -1,0 +1,8 @@
+.env
+.venv
+venv/
+/__pycache__
+sales/__pycache__
+users/__pycache__
+core/__pycache__
+auth/__pycache__
