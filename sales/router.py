@@ -1,10 +1,10 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from sales.models import WalmartSales
 from sales.schemas import SaleCreate, SaleSchema, SaleUpdate
-from sales.services import create_sale, update_sale, get_sales
+from sales.services import create_sale, delete_sale, update_sale, get_sales
 from core.database import get_db
 from datetime import datetime, date
 
@@ -41,3 +41,9 @@ def read_sales(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
+@router.delete('/{sale_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_sale_route(sale_id: int, db: Session = Depends(get_db)):
+    success = delete_sale(db=db, sale_id=sale_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Sale not found")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

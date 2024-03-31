@@ -23,4 +23,10 @@ def get_sales(db: Session, skip: int = 0, limit: int = 100) -> list[SaleSchema]:
     sales_records = db.query(WalmartSales).offset(skip).limit(limit).all()
     return [SaleSchema.from_orm(record) for record in sales_records]
 
-
+def delete_sale(db: Session, sale_id: int) -> bool:
+    db_sale = db.query(WalmartSales).filter(WalmartSales.id == sale_id).first()
+    if not db_sale:
+        return False
+    db.delete(db_sale)
+    db.commit()
+    return True
