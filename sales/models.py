@@ -15,4 +15,4 @@ class WalmartSales(Base):
 
     def __repr__(self):
         # Customize this to display the information you find most useful
-        return f"<WalmartSales store={self.store} date={self.date} sales={self.weekly_sales}>"
+        return f"<WalmartSales store={self.Store} date={self.Date} sales={self.Weekly_sales}>"

@@ -21,16 +21,6 @@ def update_sale(db: Session, sale_id: int, sale: SaleUpdate) -> WalmartSales:
 
 def get_sales(db: Session, skip: int = 0, limit: int = 100) -> list[SaleSchema]:
     sales_records = db.query(WalmartSales).offset(skip).limit(limit).all()
-    return [SaleSchema(
-        id=record.id,  
-        store=record.Store, 
-        date=record.Date,
-        weekly_sales=record.Weekly_sales,
-        holiday_flag=record.Holiday_flag,
-        temperature=record.Temperature,
-        fuel_price=record.Fuel_price,
-        cpi=record.Cpi,
-        unemployment=record.Unemployment,
-    ) for record in sales_records]
+    return [SaleSchema.from_orm(record) for record in sales_records]
 
 
