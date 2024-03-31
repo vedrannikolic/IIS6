@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
 from sales.schemas import SaleCreate, SaleSchema, SaleUpdate
 from sales.services import create_sale, update_sale, get_sales
 from core.database import get_db
@@ -26,9 +27,8 @@ def update_sale_route(sale_id: int, sale: SaleUpdate, db: Session = Depends(get_
 def read_sales(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     try:
         sales = get_sales(db=db, skip=skip, limit=limit)
-        return sales
+        return sales  # FastAPI handles serialization based on response_model
     except Exception as e:
-        # Log the error
         print(f"Error fetching sales: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
