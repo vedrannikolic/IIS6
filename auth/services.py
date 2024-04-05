@@ -1,5 +1,7 @@
 from users.models import UserModel
 from fastapi.exceptions import HTTPException
+from sqlalchemy.orm import Session
+from core.database import get_db
 from core.security import verify_password
 from core.config import get_settings
 from datetime import timedelta
@@ -8,7 +10,7 @@ from core.security import create_access_token, create_refresh_token, get_token_p
 
 settings = get_settings()
 
-async def get_token(data, db):
+async def get_token(data, db: Session):
     user = db.query(UserModel).filter(UserModel.email == data.username).first()
     
     if not user:
@@ -27,7 +29,7 @@ async def get_token(data, db):
     
     _verify_user_access(user=user)
     
-    return await _get_user_token(user=user)
+    return await _get_user_token(user=user, db=db)
     
     
 
@@ -69,16 +71,23 @@ def _verify_user_access(user: UserModel):
         
         
         
-async def _get_user_token(user: UserModel, refresh_token = None):
+async def _get_user_token(user: UserModel, db:Session,  refresh_token = None):
     payload = {"id": user.id}
     
     access_token_expiry = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     access_token = await create_access_token(payload, access_token_expiry)
+
     if not refresh_token:
-        refresh_token = await create_refresh_token(payload)
+        refresh_token_expiry = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        refresh_token = await create_refresh_token(data=payload, expiry=refresh_token_expiry)
+
+        user.refresh_token = refresh_token
+        db.add(user)
+        db.commit()
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        expires_in=access_token_expiry.seconds  # in seconds
+        expires_in=access_token_expiry.seconds 
     )

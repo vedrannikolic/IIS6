@@ -39,6 +39,15 @@ def read_sales(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error fetching sales: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+@router.get('/{sale_id}', response_model=SaleSchema)
+def read_sale(sale_id: int, db: Session = Depends(get_db)):
+   
+    sale = db.query(WalmartSales).filter(WalmartSales.id == sale_id).first()
+    if sale is None:
+        raise HTTPException(status_code=404, detail="Sale not found")
+    return sale
+
 
 
 @router.delete('/{sale_id}', status_code=status.HTTP_204_NO_CONTENT)

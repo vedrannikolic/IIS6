@@ -13,4 +13,5 @@ class UserModel(Base):
     password = Column(String(100))
     is_active = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=False)
-   
+    refresh_token = Column(String(255), nullable=True)
+    
