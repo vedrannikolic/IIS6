@@ -64,7 +64,7 @@ def _verify_user_access(user: UserModel):
     if not user.is_verified:
         # Trigger user account verification email
         raise HTTPException(
-            status_code=400,
+            status_code=401,
             detail="Your account is unverified. We have resend the account verification email.",
             headers={"WWW-Authenticate": "Bearer"},
         )

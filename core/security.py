@@ -1,10 +1,10 @@
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from starlette.authentication import AuthCredentials, UnauthenticatedUser
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 from jose import jwt, JWTError
 from core.config import get_settings
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from core.database import get_db
 from users.models import UserModel
 
@@ -23,13 +23,13 @@ def verify_password(plain_password, hashed_password):
 
 async def create_access_token(data,  expiry: timedelta):
     payload = data.copy()
-    expire_in = datetime.utcnow() + expiry
+    expire_in = datetime.now(timezone.utc) + expiry
     payload.update({"exp": expire_in})
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 async def create_refresh_token(data, expiry: timedelta):
     payload = data.copy()
-    expire_in = datetime.utcnow() + expiry
+    expire_in = datetime.now(timezone.utc) + expiry
     payload.update({"exp": expire_in})
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
@@ -37,9 +37,11 @@ async def create_refresh_token(data, expiry: timedelta):
 def get_token_payload(token):
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
-    except JWTError:
-        return None
-    return payload
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db = None):
